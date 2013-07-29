@@ -1,0 +1,241 @@
+package com.egarduno.breakout2;
+import acm.graphics.*;
+import acm.program.*;
+import acm.io.*;
+import acm.util.*;
+
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+
+/*__________________________________
+
+ITC 115 - Emilio Garduno - 07/29/2013
+Assignment 4 - Break-Out Part2
+__________________________________*/
+
+@SuppressWarnings("serial")
+public class Breakout2 extends GraphicsProgram {
+/*-=-=-=-=-=-=-=-=-=-=-=CONFIG FILE=-=-=-=-=-=-=-=-=-=-=-=-*/
+//VARIABLES
+    private GRect brick;
+		private GRect paddle;
+		private GOval ball;
+		private double ballVX=3;
+		private double ballVY;
+		boolean play=true;
+
+//CONSTANTS (must be 'final' to be Constant)
+	private final int FORMWIDTH=400;
+	private final int FORMHEIGHT=600;
+		//Bricks
+	private final int COLUMNS=10;
+	private final int GAP = 4; //space between the bricks
+	private final int height = 8; //(y-axis for collision function)
+	private final int width = (FORMWIDTH-(GAP*COLUMNS))/COLUMNS; //(x-axis)With this you only have to resize the form and/or the bricks
+		//Paddle
+	private final int PADDLEWIDTH=60;//-=testing=-FORMWIDTH//60
+	private final int PADDLEHEIGHT=20;
+	private final int PADDLEOFFSET=FORMHEIGHT - 30;//-=testing=-280//30 position from the bottom of the form
+		//Ball
+	private final int BALLDIAMETER=20;	// r = D/2
+	private final int ballSpeed = 6; //Lower is faster (ball pause time between movements)
+	private final int BALLSTARTX=(FORMWIDTH/2) - (BALLDIAMETER/2);
+	private final int BALLSTARTY=(FORMHEIGHT/2) - (BALLDIAMETER/2);
+
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
+
+/* -=-=Original settings for school project=-=-
+	x	Applet Width: 400
+	x	Applet Height: 600
+	x	Paddle Y Offset: 30 //Gap between the bottom of the applet and where the paddle appears
+	x	Paddle Width: 60
+	x	Paddle Height: 10
+	x	Brick Y Offset: 70 //Gap between the top of the applet and where the first bricks appear
+	x	Number of Brick Rows: 10
+	x	Number of Brick Columns: 10
+	x	Separation between Bricks: 4
+	x	Brick Height: 8
+	x	Brick Width: 36 ==> (400-(4x10))/10
+	x	Ball Start X: Center of Screen
+	x	Ball Start Y: Center of Screen
+	x	Ball Radius: 10
+	*/
+
+	public void run(){
+		setup();
+	}
+
+	private void setup(){
+		setSize(FORMWIDTH, FORMHEIGHT);
+		createPaddle();
+		addKeyListeners();
+		addMouseListeners();
+		createBricks();
+		createBall();
+		waitForClick();
+		playGame();
+	}
+
+//Bricks	==================
+	private void createBricks(){
+		int x = 0;
+		int y = 70;
+
+		for (int r = 1; r <= COLUMNS; r++){
+			Color c = pickColor(r);
+				//----------------------------
+				for (int i=1; i <= COLUMNS; i++){
+					brick = new GRect(x,y, width, height);
+					brick.setColor(Color.BLACK);
+					brick.setFillColor(c);
+					brick.setFilled(true);
+
+					add(brick);
+					x += FORMWIDTH / COLUMNS;
+				}//END inside for loop
+				//----------------------------
+				x = 0;
+				y += height + GAP; // Start position of each row, after the first
+		}//END outside for loop
+	}
+
+	private Color pickColor(int row){
+		Color c=Color.red;
+		switch (row)
+		{
+			case 1:
+			case 2:
+				c=Color.red;
+				break;
+			case 3:
+			case 4:
+				c=Color.orange;
+				break;
+			case 5:
+			case 6:
+				c=Color.yellow;
+				break;
+			case 7:
+			case 8:
+				c=Color.green;
+				break;
+			case 9:
+			case 10:
+				c=Color.blue;
+				break;
+			default:
+				c=Color.gray;
+				break;
+		}
+		return c;
+	}
+
+//Paddle	==================
+	private void createPaddle(){
+		paddle = new GRect(FORMWIDTH/2 - PADDLEWIDTH/2, PADDLEOFFSET, PADDLEWIDTH, PADDLEHEIGHT);
+		paddle.setFillColor(Color.GRAY);
+		paddle.setFilled(true);
+		add(paddle);
+	}
+
+	public void keyPressed(KeyEvent e){
+		double x = paddle.getX();
+
+		switch (e.getKeyCode()){
+		case KeyEvent.VK_RIGHT:
+			if(x<(FORMWIDTH-PADDLEWIDTH)){
+				paddle.move(PADDLEWIDTH/1, 0);//moves(entire paddle width, 0[no Y-axis])
+			}
+			break;
+		case KeyEvent.VK_LEFT:
+			if(x>(0)){
+				paddle.move(-PADDLEWIDTH/1, 0);//moves(entire paddle width, 0[no Y-axis])
+			}
+			break;
+			default:break;
+		}
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		Point movePos=e.getPoint();
+		double x = movePos.getX();
+		double y = PADDLEOFFSET;
+
+		paddle.setLocation(x,y);
+	}
+
+//Ball	===================
+	private void createBall(){
+		RandomGenerator rand = new RandomGenerator();
+		ballVY = rand.nextDouble(1.0,3.0);
+		ball = new GOval(BALLSTARTX, BALLSTARTY, BALLDIAMETER, BALLDIAMETER);
+		ball.setFillColor(Color.YELLOW);
+		ball.setFilled(true);
+		add(ball);
+	}
+
+//Gameplay  ===================
+	private void playGame(){
+
+		while(play){
+			collision();			
+
+			if(ball.getX() > (FORMWIDTH - BALLDIAMETER) || ball.getX() <= 0){
+				ballVX = -ballVX;
+			}
+
+			if(ball.getY() >= (FORMHEIGHT - BALLDIAMETER) || ball.getY() <= 0){
+				ballVY = -ballVY;
+			}
+
+			if(ball.getY() >= (FORMHEIGHT - BALLDIAMETER)){
+				play = false;
+			}
+
+			ball.move(ballVX, ballVY);
+			pause(ballSpeed);
+
+		}
+		restart();
+	}
+
+	private void restart(){
+		IODialog dialog = new IODialog();
+		String answer =dialog.readLine("Do you want to play again: Yes or No?");
+		if (answer.equalsIgnoreCase("Yes")){
+			removeAll();
+			play = true;
+			setup();
+		}else{
+			System.exit(0);
+		}
+	}
+
+	private void collision(){
+	 //GObject [name] = [define the point of contact]; will store anything that it touches as the ==> GObject [name]
+		GObject TLC = getElementAt(ball.getX(),ball.getY());//Top Left Corner
+		GObject TRC = getElementAt(ball.getX()+BALLDIAMETER,ball.getY());//Top Right Corner
+		GObject BLC = getElementAt(ball.getX(),ball.getY()+BALLDIAMETER);//Bottom Left Corner
+		GObject BRC = getElementAt(ball.getX()+BALLDIAMETER,ball.getY()+BALLDIAMETER);//Bottom Right Corner
+
+		if (TLC == paddle || TRC == paddle || BRC == paddle || BLC == paddle){
+			ballVY = -ballVY;
+		}else if(TRC != null){
+			remove(TRC);
+			ballVY = -ballVY;
+		}else if(BLC != null){
+			remove(BLC);
+			ballVY = -ballVY;
+		}else if(BRC != null){
+			remove(BRC);
+			ballVY = -ballVY;
+		}else if(TLC != null){
+			remove(TLC);
+			ballVY = -ballVY;
+		}
+	}
+
+
+}//end class
