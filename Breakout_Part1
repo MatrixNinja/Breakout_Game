@@ -1,0 +1,92 @@
+package com.egarduno.breakout1;
+import acm.graphics.*;
+import acm.program.*;
+
+import java.awt.Color;
+
+/*__________________________________
+
+ITC 115 - Emilio Garduno - 07/15/2013
+Assignment 3 - Break-Out 1
+__________________________________*/
+
+@SuppressWarnings("serial")
+public class Breakout1 extends GraphicsProgram {
+  //CONSTANTS (must be 'final' to be Constant)
+	private final int FORMWIDTH=400;
+	private final int FORMHEIGHT=600;
+	private final int BALLDIAMETER=20;	// r = D/2
+	private final int COLUMNS=10;				
+	private final int PADDLEWIDTH=60;
+	private final int PADDLEHEIGHT=10;
+	private final int PADDLEOFFSET=FORMHEIGHT -30;
+	private final int BALLSTARTX=FORMWIDTH/2 - BALLDIAMETER/2;
+	private final int BALLSTARTY=FORMHEIGHT/2 - BALLDIAMETER/2;
+	//VARIABLES
+	private GRect rect;
+	private GOval ball;
+	private GRect paddle;
+	
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
+
+/* -=-=Original settings for school project=-=-
+	x	Applet Width: 400
+	x	Applet Height: 600
+	x	Paddle Y Offset: 30 //Gap between the bottom of the applet and where the paddle appears
+	x	Paddle Width: 60
+	x	Paddle Height: 10
+	x	Brick Y Offset: 70 //Gap between the top of the applet and where the first bricks appear
+	x	Number of Brick Rows: 10
+	x	Number of Brick Columns: 10
+	x	Separation between Bricks: 4
+	x	Brick Height: 8
+	x	Brick Width: 36 ==> (400-(4x10))/10
+	x	Ball Start X: Center of Screen
+	x	Ball Start Y: Center of Screen
+	x	Ball Radius: 10
+	*/
+	
+	public void run(){
+		setSize(FORMWIDTH, FORMHEIGHT);
+		createPaddle();
+		createBall();
+		MakeRectangles();
+		waitForClick();
+	}
+	
+	private void createBall(){
+		ball = new GOval(BALLSTARTX, BALLSTARTY, BALLDIAMETER, BALLDIAMETER);
+		ball.setFillColor(Color.YELLOW);
+		ball.setFilled(true);
+		add(ball);
+	}
+	
+	private void createPaddle(){
+		paddle = new GRect(FORMWIDTH/2 - PADDLEWIDTH/2, PADDLEOFFSET, PADDLEWIDTH, PADDLEHEIGHT);
+		paddle.setFillColor(Color.GRAY);
+		paddle.setFilled(true);
+		add(paddle);
+	}
+
+	private void MakeRectangles(){
+		int x = 0;
+		int y = 70;
+		
+		for (int r = 1; r <= COLUMNS; r++){
+				//----------------------------
+				for (int c=1; c <= COLUMNS; c++){
+					rect = new GRect(x,y, 36, 8);
+					rect.setColor(Color.BLACK);
+					rect.setFillColor(Color.RED);
+					rect.setFilled(true);
+					
+					add(rect);
+					x += FORMWIDTH / COLUMNS;
+				}//END inside for loop
+				//----------------------------
+				x = 0;
+				y += 12;
+		}//END outside for loop
+	}
+	
+}//end class
