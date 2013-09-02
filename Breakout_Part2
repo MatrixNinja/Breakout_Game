@@ -11,8 +11,9 @@ import java.awt.event.MouseEvent;
 
 /*__________________________________
 
-ITC 115 - Emilio Garduno - 07/29/2013
-Assignment 4 - Break-Out Part2
+	Emilio Garduno
+	07/29/2013
+	Break-Out Part2
 __________________________________*/
 
 @SuppressWarnings("serial")
