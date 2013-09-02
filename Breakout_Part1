@@ -6,8 +6,9 @@ import java.awt.Color;
 
 /*__________________________________
 
-ITC 115 - Emilio Garduno - 07/15/2013
-Assignment 3 - Break-Out 1
+	Emilio Garduno
+	07/15/2013
+	Break-Out 1
 __________________________________*/
 
 @SuppressWarnings("serial")
